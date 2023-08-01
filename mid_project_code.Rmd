@@ -1,0 +1,30 @@
+---
+title: "bad_graph_2"
+author: "Mykola_Signayevskyy"
+date: "2023-03-01"
+output: html_document
+---
+
+```{r}
+library(MASS)
+library(tidyverse)
+source("/Users/mykola/Desktop/STAT515/third_lesson/hw.R")
+```
+
+
+```{r}
+job_type <- c('Welfare', 'Full time job')
+people <- c(108.6, 101.7)
+job <- data.frame(job_type, people)
+```
+
+```{r}
+ggplot(job , aes(x = job_type, y = people) ) +
+  geom_bar(stat = "identity", position = "dodge", fill="cornsilk",color='black') +
+  ylim(0,120) +
+  labs(x="Type of employment",
+       y="Millions of people",
+       title="WELFERE VS. FULL TIME JOBS")
++ hw
+```
+

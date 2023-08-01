@@ -1,0 +1,165 @@
+---
+title: "mid_project"
+author: "Mykola_Signayevskyy"
+date: "2023-02-28"
+output:
+  html_document: default
+  pdf_document: default
+  always_allow_html: yes
+---
+
+install.packages("webshot")
+webshot::install_phantomjs()
+
+```{r}
+library(MASS)
+library(tidyverse)
+library(leaflet)
+```
+```{r}
+source("/Users/mykola/Desktop/STAT515/third_lesson/hw.R")
+```
+
+#### Creating data set according to the original graph
+
+```{r}
+Country <- c("Latvia", "Australia", "Scotland", "Peru", "South Africa", "India")
+Height <- c(5.5, 5.4, 5.4, 5.4, 5.2, 5.0)
+```
+
+```{r}
+average_f_h <- data.frame(Country, Height)
+average_f_h
+```
+
+
+```{r}
+newdata <- average_f_h[order(-Height),] #ordering the data by height
+newdata
+```
+
+
+```{r}
+p <- ggplot(newdata, aes(x = Country, y = Height)) +
+   geom_bar(stat = "identity", fill="pink") + hw
+p
+```
+
+```{r}
+p1 <- p + ylim(0,6) + scale_x_discrete(limits = Country) #ordering bar charts
+p1
+```
+
+
+
+```{r}
+p2 <- p1 + geom_hline(yintercept=5) + labs(x="Country",
+       y="Height",
+       title="Average Female Height")+ annotate("text", x=6, y=5.2, label= "5'0 feets ") + hw #adding line to show that difference is actually very small.
+p2
+```
+
+### At some point we found the existing dataset with same data
+
+```{r}
+height_data <- read_csv('/Users/mykola/Desktop/STAT515/mid_project/Height_data.csv') 
+```
+
+```{r}
+table(is.na(height_data)) #checking for a NA cells
+```
+
+```{r}
+height_data = na.omit(height_data) #removing NA rows 
+table(is.na(height_data)) 
+```
+
+
+
+
+```{r}
+filtered_height <- height_data %>%
+  select(country, region, meanHeightFemale, meanHeightMale, rank) %>%
+  filter(country %in% c("Latvia", "Australia", "Scotland", "Peru", "South Africa", "India"))
+head(filtered_height)
+```
+
+
+
+
+```{r}
+new_row <- c("Scotland", "Europe", 162.5000, 172.7200, 150)
+filtered_height <- rbind(filtered_height, new_row)   #adding scotland data as it id not on the dataset 
+```
+
+
+```{r}
+lon <- c(24.6032, 133.8826, 24.6727, -76.4000, 77.2167, -4.2514)
+lat <- c(56.8796, -23.7005, -28.4792, -9.2800, 25.6448, 55.8609)
+
+filtered_height$Lat <- lat
+filtered_height$Lon <- lon
+```
+
+```{r}
+map1<- leaflet(filtered_height) %>% 
+  addTiles() %>%   # adding markers
+   addMarkers(
+    label =  ~filtered_height$country,
+    labelOptions = labelOptions(noHide = T))
+  
+map1
+
+```
+
+
+```{r}
+map2 <- map1 %>%
+  addMarkers(popup = ~filtered_height$meanHeightFemale)
+map2
+```
+
+```{r}
+map3 <- map2 %>%
+  addProviderTiles(providers$Stamen.Watercolor)
+map3
+```
+
+map3
+
+
+```{r}
+library(plotly)
+```
+
+```{r}
+height2 <- height_data %>% dplyr::select(country, region, meanHeightFemale)
+
+head(height2)
+```
+
+
+```{r}
+
+# create a box plot with meanHeightFemale as y and country as x
+fig <- plot_ly(data = height2, y = ~meanHeightFemale, x = ~region, type = "box")
+
+
+fig <- fig %>% add_trace(y = ~meanHeightFemale, x = ~region, boxpoints = "all", jitter = 0.3, marker = list(color = "rgba(7, 40, 89, 0.7)"))
+
+fig
+
+```
+
+```{r}
+fig2 <- fig %>%
+  layout(title = "Mean Height by Region",
+                      xaxis = list(title = "Regions", categoryorder = "array", categoryarray = height_data$country),
+                      yaxis = list(title = "Mean Height (cm)"),
+                      legend = list(title = "Region"))
+fig2
+```
+
+
+fig
+

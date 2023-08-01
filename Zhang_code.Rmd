@@ -1,0 +1,125 @@
+---
+title: "mid term project"
+author: "Zhang"
+date: "2023-03-08"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+library(tidyverse) #creating the database
+country <- c("Romania", "UK", "Germany","Poland", "Netherlands", "Slovak","Czech", "EU-28 Avg","Spain", "Hungary","Sweden","Belgium","Italy","France")
+worktime <- c(41.2, 40.8, 40.4, 39.9, 39.8, 39.8, 39.7, 39.5, 39.5, 39.2, 38.6, 38.1, 38.0, 37.4) #
+hw <- theme_gray()+ theme(
+plot.title=element_text(hjust=0.5), plot.subtitle=element_text(hjust=0.5), plot.caption=element_text(hjust=-.5),
+strip.text.y = element_blank(), strip.background=element_rect(fill=rgb(.9,.95,1),
+colour=gray(.5), linewidth =.2),
+panel.border=element_rect(fill=FALSE,colour=gray(.70)), panel.grid.minor.y = element_blank(),
+panel.grid.minor.x = element_blank(),
+panel.spacing.x = unit(0.10,"cm"),
+panel.spacing.y = unit(0.05,"cm"),
+# axis.ticks.y= element_blank() axis.ticks=element_blank(), axis.text=element_text(colour="black"), axis.text.y=element_text(margin=margin(0,3,0,3)), axis.text.x=element_text(margin=margin(-1,0,3,0))
+)
+#
+Compare <- data.frame(country, worktime)
+ggplot(Compare, aes(x=country, y= worktime))+
+geom_bar(stat = "identity", fill = "cornsilk", color = "black")+
+xlab("EU countries")+
+ylab("Weekly average working hours of works in 2013")+
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")+ hw+
+coord_flip() #
+ggplot(Compare, aes(x=country, y= worktime))+
+geom_bar(stat = "identity", fill = ifelse(country == "Germany", "red", "cornsilk"), color = "black")+
+xlab("EU countries")+
+ylab("Weekly average working hours of works in 2013")+
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")+ hw+
+coord_flip()+
+geom_hline(yintercept = 40.4) #
+mean(worktime)
+#
+ggplot(Compare, aes(x=country, y= worktime))+
+geom_bar(stat = "identity", fill = ifelse(country == "Germany", "red", "cornsilk"), color = "black")+
+xlab("EU countries")+
+ylab("Weekly average working hours of works in 2013")+
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")+ hw+
+coord_flip()+
+geom_hline(yintercept = mean(worktime)) #
+
+ggplot(Compare, aes(x=country, y= worktime))+
+geom_bar(stat = "identity", fill = ifelse(country == "Germany", "red", ifelse(country == "EU-28 Avg", "yellow", "cornsilk")), color = "black")+
+xlab("EU countries")+
+ylab("Weekly average working hours of works in 2013")+
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")+ hw+
+coord_flip()+
+geom_hline(yintercept = mean(worktime)) #
+Compare <- Compare[order(-Compare$worktime),] ggplot(Compare, aes(x= reorder(country, worktime), y= worktime))+
+geom_bar(stat = "identity", fill = ifelse(country == "Germany", "red", ifelse(country == "EU-28 Avg", "yellow", "cornsilk")), color = "black")+
+xlab("EU countries")+
+ylab("Weekly average working hours of works in 2013")+
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")+ hw+
+coord_flip()+
+geom_hline(yintercept = mean(worktime)) #
+#Final Bar Chart #Give Color
+Compare$colors <- ifelse(Compare$worktime == max(Compare$worktime),"blue", ifelse(Compare$worktime == min(Compare$worktime),"gray", ifelse(Compare$country == "Germany", "red", ifelse(Compare$country == "EU-28 Avg","yellow","cornsilk"))))
+ggplot(Compare, aes(x= reorder(country, worktime), y= worktime))+ geom_bar(stat = "identity", fill = Compare$colors, color = "black")+ xlab("EU countries")+
+
+ylab("Weekly average working hours of works in 2013")+
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")+ hw+
+coord_flip()+
+geom_hline(yintercept = mean(worktime))
+#Scatter Chart
+Compare <- Compare[order(Compare$worktime, decreasing = TRUE),]
+max_country <- Compare$country[which.max(Compare$worktime)] min_country <- Compare$country[which.min(Compare$worktime)]
+ggplot(Compare, aes(x= country, y= worktime, group = 1))+
+geom_point(shape = 21, size = 4, color = "black",aes(fill = ifelse(country == max_country, "Most Work",
+ifelse(country == min_country, "Least Work", ifelse(country == "Germany","Germany",
+ifelse(country == "EU-28 Avg", "EU-28 Avg",
+"Other Countries"))))))+
+scale_fill_manual(name = "Country Fill", values = c("Most Work" = "blue",
+"Least Work" = "green", "Germany" = "red",
+"EU-28 Avg" = "purple", "Other Countries" = "black"))+
+geom_line(size = 0.8, color = "black")+
+xlab("Weekly average working hours of works in 2013")+
+ylab("EU countries")+
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")+
+ylim(0,max(Compare$worktime)+1)+
+geom_hline(yintercept = mean(worktime), color = "purple", size = 1)
+
+#Map
+write.csv(map_data("world"),"world_map.csv", row.names = FALSE)
+region <- c("Romania", "Great Britain", "Germany","Poland", "Netherlands", "Slovak","Czech","Spain", "Hungary","Sweden","Belgium","Italy","France")
+worktime1 <- c(41.2, 40.8, 40.4, 39.9, 39.8, 39.8, 39.7, 39.5, 39.2, 38.6, 38.1, 38.0, 37.4) Compare1 <- data.frame(region, worktime1)
+mapdata <- map_data("world")%>% as_tibble()
+mapdata <- left_join(mapdata, Compare1, by = "region")
+mapdata1 <- mapdata %>% filter(!is.na(mapdata$worktime1))
+ggplot(mapdata1, aes(x= long, y = lat, group = group))+
+geom_polygon(aes(fill = worktime1), color = "black")+hw+
+scale_fill_gradient(name = "Weekly work time(Avg)", low = "yellow", high = "red", na.value = "grey50")+yes
+ggtitle("Average number of actual weekly hours of work in main job, full-time employees, 2013")
+```
+
